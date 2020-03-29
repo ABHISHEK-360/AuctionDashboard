@@ -14,8 +14,8 @@ class TeamForm extends Component {
     balance: '',
   }
 
-  verifyForm = () => {
-    const { team_name, captain_id, desc, balance } = this.state;
+  verifyForm = (mode) => {
+    const {id, team_name, captain_id, desc, balance } = this.state;
     if(team_name===''){
       alert('Team Name is Required!');
       return;
@@ -25,13 +25,41 @@ class TeamForm extends Component {
       return;
     }
     else{
-      this.props.handleAddTeam({
-        name: team_name,
-        desc: desc,
-        captainId: captain_id,
-        balance,
-      });
+      if(mode==='edit'){
+        if(id===''){
+          alert('Invalid team Id!');
+          return;
+        }
+        else{
+          console.log('state of team', this.state);
+          this.props.handleEditRequest({
+            teamId: id,
+            name: team_name,
+            desc: desc,
+            captainId: captain_id,
+            balance,
+          });
+        }
+      }
+      else{
+        this.props.handleAddTeam({
+          name: team_name,
+          desc: desc,
+          captainId: captain_id,
+          balance,
+        });
+      }
     }
+  }
+
+  setDetails = (data) => {
+    this.setState({
+      id: data.id,
+      team_name: data.name,
+      captain_id: data.captain.id,
+      desc: data.desc,
+      balance: data.balance,
+    })
   }
 
   clearFields = () => {
@@ -45,23 +73,32 @@ class TeamForm extends Component {
   }
 
   render() {
+    const mode = this.props.mode;
     return (
-      <div
-      >
-        <h1 align = "center"> Add New Team </h1>
         <div
           align = 'start'
           style = { styles.container }
         >
-          <TextField
-            required
-            variant = "outlined"
-            label = "Team Name:"
-            placeholder = "Aztecs"
-            style = { styles.textField }
-            value = {this.state.team_name}
-            onChange = {(event) => this.setState({team_name: event.target.value})}
-          />
+          <div style = {{ flexDirection: 'horizontal', display: 'flex',}}>
+            <TextField
+              required
+              variant = "outlined"
+              label = "Team Name:"
+              placeholder = "Aztecs"
+              style = { styles.textField }
+              value = {this.state.team_name}
+              onChange = {(event) => this.setState({team_name: event.target.value})}
+            />
+            <div style = {{flex: 1}}></div>
+            {
+              mode ==='edit' ?
+                <h3
+                  style = {styles.idText}>
+                  ID: {this.state.id}
+                </h3> :
+                <div style = {{flex: 1}}></div>
+            }
+          </div>
           <br/>
           <TextField
             required
@@ -95,7 +132,7 @@ class TeamForm extends Component {
             <Button
               color = 'default'
               style={styles.button}
-              onClick={(event) => this.verifyForm()}
+              onClick={(event) => this.verifyForm(mode)}
             >
               Save
             </Button>
@@ -108,20 +145,25 @@ class TeamForm extends Component {
             </Button>
           </div>
         </div>
-      </div>
     );
   }
 }
 
 const styles = {
   container: {
-    border: '2px solid black' ,
-    borderRadius: 5,
     width: '100%',
   },
   textField: {
     marginLeft: 10,
     marginTop: 10,
+  },
+  idText: {
+    textAlign: 'center',
+    padding: 5,
+    flex: 1,
+    color: Colors.PRIMARY_SPECIAL,
+    border: '3px solid red',
+    borderRadius: 5,
   },
   button: {
     margin: 10,

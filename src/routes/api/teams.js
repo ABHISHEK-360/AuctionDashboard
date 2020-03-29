@@ -78,48 +78,36 @@ router.put('/update', middleware.checkToken, async ( req, res ) => {
   });
 
   const updatedAt = new Date();
+  var data = {};
 
   if(teamDetails){
     if(name){
-      await teamDetails.update({updatedAt, name});
-      return res.json({
-        success: true,
-        message: 'name updated',
-      })
+      data = {...data, name};
     }
     else if(captainId){
-      await teamDetails.update({updatedAt, captainId});
-      return res.json({
-        success: true,
-        message: 'Team Captain Updated',
-      })
+      data = {...data, captainId};
     }
     else if(desc){
-      await teamDetails.update({updatedAt, desc});
-      return res.json({
-        success: true,
-        message: 'Description updated',
-      })
+      data = {...data, desc};
     }
     else if(balance){
-      await teamDetails.update({updatedAt, balance});
+      data = {...data, balance};
+    }
+
+    if(Object.keys(data).length >= 0){
+      console.log('data in update user', data);
+      await teamDetails.update({updatedAt, ...data});
       return res.json({
         success: true,
-        message: 'Team Balance updated',
+        message: 'Team Details Updated',
       })
     }
     else {
-      return res.json({
-        success: false,
-        message: 'fields missing',
-      })
+      return res.status(400).send('invalid params');
     }
   }
   else{
-    return res.json({
-      success: false,
-      message: 'unauthorized',
-    })
+    return res.status(400).send('invalid params');
   }
 });
 
@@ -136,14 +124,11 @@ router.put('/remove', middleware.checkToken, async ( req, res ) => {
   if(teamDetails){
     return res.json({
       success: true,
-      message: 'Team Removed successfully!',
+      message: 'Team Removed Successfully!',
     })
   }
 
-  return res.json({
-    success: false,
-    message: 'unauthorized',
-  })
+  return res.status(400).send('invalid params')
 });
 
 router.get('/:teamId', (req,res) => {
@@ -157,7 +142,7 @@ router.get('/:teamId', (req,res) => {
           required: false
         },
         {
-          attributes: ['name', 'id', 'dept', 'role', 'hostel', 'price'],
+          attributes: ['name', 'id', 'dept', 'role', 'hostel', 'whatsApp', 'price'],
           model: Players,
           as: 'players',
           required: false

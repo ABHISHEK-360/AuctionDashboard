@@ -18,8 +18,10 @@ class Admin extends Component{
   state = {
     loggedIn: true,
     userDetails: {name: 'A360'},
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNDNmNDVmYS03ODYyLTRmODctOTVlYi1lNDU3OWQ1ZTU4MzMiLCJ1c2VybmFtZSI6ImEzNjBAYWRtaW4uZGV2IiwiaWF0IjoxNTgxODc3ODQ1LCJleHAiOjE1ODE5NjQyNDV9.lb_nRiavujc4Rmfl-zBXYKNN7Hb_xoX533lsAJZOxUA",
+    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNDNmNDVmYS03ODYyLTRmODctOTVlYi1lNDU3OWQ1ZTU4MzMiLCJ1c2VybmFtZSI6ImEzNjBAYWRtaW4uZGV2IiwiaWF0IjoxNTg1NDg5MzM1LCJleHAiOjE1ODU1NzU3MzV9.OUh3LKbzJhIsCPjny2hVn8pfR2vrJhxak35vxas3khU",
     control: 'players',
+    actionMode: 'add',
+    count: 0,
     users: [],
     players: [],
     teams: [],
@@ -27,22 +29,31 @@ class Admin extends Component{
 
   constructor(){
     super();
+    this.actionViewHolder = React.createRef();
     this.adminRequests = new RequestService('users','ADMIN');
     this.playersRequests = new RequestService('players','ADMIN');
     this.teamsRequests = new RequestService('teams','ADMIN');
   }
 
   componentDidMount(){
-    this.playersRequests.get().then(res => {
+    this.loadPlayers(1);
+  }
+
+  loadPlayers = (pageNo) => {
+    this.playersRequests.get('list/'+pageNo).then(res => {
       console.log('data in get players', res);
       this.setState({
+        count: res.count,
         players: res.players
       })
     })
+  }
 
+  loadTeams = () => {
     this.teamsRequests.get().then(res => {
       console.log('data in get teams', res);
       this.setState({
+        count: res.count,
         teams: res.teams
       })
     })
@@ -50,21 +61,86 @@ class Admin extends Component{
 
   loadUsers = () => {
     this.adminRequests.get('', this.state.token).then(res => {
-      console.log('data in get user', res);
+      console.log('data in get users', res);
       this.setState({
+        count: res.count,
         users: res.users
       })
     })
+  }
+
+  setModeData = (mode, id) => {
+    const control = this.state.control;
+
+    if(mode === 'edit'){
+      if(control === 'users'){
+        this.adminRequests.get(id).then(res => {
+            console.log('edit user data', res)
+            this.setState({
+              actionMode: 'edit'
+            },this.actionViewHolder.current.changeMode(res))
+          }
+        )
+      }
+      else if(control === 'teams'){
+        this.teamsRequests.get(id).then(res => {
+            console.log('edit team data', res)
+            this.setState({
+              actionMode: 'edit'
+            },this.actionViewHolder.current.changeMode(res))
+          }
+        )
+      }
+      else if(control === 'players'){
+        this.playersRequests.get(id).then(res => {
+            console.log('edit player data', res)
+            this.setState({
+              actionMode: 'edit'
+            },this.actionViewHolder.current.changeMode(res))
+          }
+        )
+      }
+
+    }
   }
 
   changeControl = (control) =>{
     if(control === 'users'){
       this.loadUsers();
     }
+    else if(control === 'teams'){
+      this.loadTeams();
+    }
+    else if(control === 'players'){
+      this.loadPlayers(1);
+    }
 
     this.setState({
       control,
+      actionMode: 'add'
     })
+  }
+
+  handleEditRequest = async (data) => {
+    const token = this.state.token;
+    const control = this.state.control;
+
+    if(control === 'users'){
+      this.adminRequests.put(data, 'update', token).then(res => {
+        console.log('res edit user', res);
+      })
+    }
+    else if(control === 'teams'){
+      this.teamsRequests.put(data, 'update', token).then(res => {
+        console.log('res edit team', res);
+      })
+    }
+    else if(control === 'players'){
+      this.playersRequests.put(data, 'update', token).then(res => {
+        console.log('res edit player', res);
+      })
+    }
+
   }
 
   handleAddTeam = async (team) => {
@@ -110,6 +186,12 @@ class Admin extends Component{
     }
   }
 
+  handlePageChange = (pageNo) => {
+    if(this.state.control === 'players'){
+      this.loadPlayers(pageNo)
+    }
+  }
+
   handleLogout = () => {
     this.setState({
       loggedIn: false,
@@ -148,7 +230,10 @@ class Admin extends Component{
               <Grid container spacing={0}>
                 <Grid item xs={12} sm={7}>
                   <ActionViewHolder
+                    ref = {this.actionViewHolder}
                     control = {this.state.control}
+                    mode = {this.state.actionMode}
+                    handleEditRequest = {this.handleEditRequest}
                     handleAddTeam = {this.handleAddTeam}
                     handleAddPlayer = {this.handleAddPlayer}
                     handleAddUser = {this.handleAddUser}
@@ -157,6 +242,9 @@ class Admin extends Component{
                 <Grid item xs={12} sm={5}>
                   <ListViewHolder
                     control = {this.state.control}
+                    handlePage = {this.handlePageChange}
+                    setModeData = {this.setModeData}
+                    count = {this.state.count}
                     users = {this.state.users}
                     players = {this.state.players}
                     teams = {this.state.teams}

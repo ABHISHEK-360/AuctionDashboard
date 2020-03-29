@@ -37,19 +37,26 @@ router.post('/add', middleware.checkToken, async(req, res) => {
   }
 });
 
-router.get('/', (req,res) => {
-  Players.findAll({
+router.get('/list/:pageNo', (req,res) => {
+  const page = req.params.pageNo;
+  Players.findAndCountAll({
     attributes: ['id','name', 'desc', 'dept', 'hostel', 'role', 'battingHand', 'bowlingHand', 'phone', 'whatsApp', 'availability', 'price', 'picUrl'],
+    order: [
+      ['id', 'ASC'],
+    ],
     include: [{
       attributes: ['name', 'id'],
       model: Teams,
-    }]
+    }],
+    offset:((page-1)*20),
+    limit: 20,
+    subQuery:false
   })
-  .then(players => {
+  .then((players) => {
     return res.json({
       success: true,
-      count: players.length,
-      players,
+      count: players.count,
+      players: players.rows,
     })
   })
   .catch(e => {
@@ -58,9 +65,72 @@ router.get('/', (req,res) => {
   })
 });
 
+router.put('/update', middleware.checkToken, async ( req, res ) => {
+  const { id, name, captainId, desc, logoUrl, balance } = req.body;
+  var playerDetails;
+
+  playerDetails = await Players.findOne({
+    where: {
+      id: id
+    }
+  });
+
+  const updatedAt = new Date();
+  var data = {};
+
+  if(playerDetails){
+    if(name){
+      data = {...data, name};
+    }
+    else if(desc){
+      data = {...data, desc};
+    }
+    else if(dept){
+      data = {...data, dept};
+    }
+    else if(hostel){
+      data = {...data, hostel};
+    }
+    else if(battingHand){
+      data = {...data, battingHand};
+    }
+    else if(bowlingHand){
+      data = {...data, bowlingHand};
+    }
+    else if(phone){
+      data = {...data, phone};
+    }
+    else if(whatsApp){
+      data = {...data, whatsApp};
+    }
+    else if(availability){
+      data = {...data, availability};
+    }
+    else if(price){
+      data = {...data, price};
+    }
+
+    if(Object.keys(data).length >= 0){
+      console.log('data in update player', data);
+      await playerDetails.update({updatedAt, ...data});
+      return res.json({
+        success: true,
+        message: 'Player Details Updated',
+      })
+    }
+    else {
+      return res.status(400).send('invalid params');
+    }
+  }
+  else{
+    return res.status(400).send('invalid params');
+  }
+});
+
 router.get('/:playerId', (req,res) => {
     Players.findOne({
-      attributes: ['id','name', 'desc', 'dept', 'hostel', 'role', 'battingHand', 'bowlingHand', 'phone', 'whatsApp', 'availability', 'price', 'picUrl'],
+      attributes: ['id','name', 'desc', 'dept', 'hostel', 'role', 'battingHand',
+        'bowlingHand', 'phone', 'whatsApp', 'availability', 'price', 'picUrl'],
       include: [
         {
           attributes: ['name', 'id'],
@@ -85,7 +155,7 @@ router.put('/assignTeam', async (req,res) => {
   const { teamId, playerId, price} = req.body;
   const team = await Teams.findOne({where: {id: req.body.teamId}})
   if(team){
-    if(team.balance>price){
+    if(team.balance>=price){
       try {
         const result = await sequelize.transaction(async (t) => {
 

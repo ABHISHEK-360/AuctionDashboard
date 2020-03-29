@@ -60,7 +60,7 @@ const PlayerInfo = (props) => {
             component="h2"
             style = {{padding: 5, color: Colors.WHITE, backgroundColor: Colors.PRIMARY}}
           >
-            {props.player.name.toUpperCase()}
+            <strong style = {styles.idText}>{props.player.id}</strong> <t/> {props.player.name.toUpperCase()}
           </Typography>
           <Grid
             container
@@ -108,6 +108,14 @@ const styles = {
     border: '2px solid #6C6061',
     borderRadius: 5,
     boxShadow: "5px 3px 5px #9E9E9E",
+  },
+  idText: {
+    border: '2px solid #6C6061',
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderRadius: 50,
+    marginRight: 15,
+    color: 'red'
   }
 }
 

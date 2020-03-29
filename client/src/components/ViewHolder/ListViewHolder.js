@@ -6,43 +6,45 @@ import {
   Grid,
   Typography,
   Card,
+  List,
+  ListItem,
   CardContent,
-  CardActionArea,
   CardMedia,
-  CardActions,
   Button
 } from '@material-ui/core';
+import Pagination from '../Pagination';
+
 
 class ListViewHolder extends Component{
   roleText = (role, battingHand, bowlingHand) => {
-    if(role === 'batsman'){
-      if(battingHand === 'r')
+    if(role === 'Batsman'){
+      if(battingHand === 'Right')
         return 'Right-Hand Batsman'
 
-      if(battingHand === 'l')
+      if(battingHand === 'Left')
         return 'Left-Hand Batsman'
     }
 
-    if(role === 'bowler'){
-      if(bowlingHand === 'r')
+    if(role === 'Bowler'){
+      if(bowlingHand === 'Right')
         return 'Right-Hand Bowler'
 
-      if(bowlingHand === 'l')
+      if(bowlingHand === 'Left')
         return 'Left-Hand Bowler'
     }
 
-    if(role === 'all_rounder'){
+    if(role === 'All-Rounder'){
       var temp = '';
-      if(battingHand === 'r')
+      if(battingHand === 'Right')
         temp = 'Right-Hand Batsman'
 
-      if(battingHand === 'l')
+      if(battingHand === 'Left')
         temp = 'Left-Hand Batsman'
 
-      if(bowlingHand === 'r')
+      if(bowlingHand === 'Right')
         return temp + ' & Right-Hand Bowler'
 
-      if(bowlingHand === 'l')
+      if(bowlingHand === 'Left')
         return temp + ' & Left-Hand Bowler'
     }
   }
@@ -52,17 +54,17 @@ class ListViewHolder extends Component{
       case 'teams' :
         return <div>
           <Typography
-            style = {{fontSize: 16}}
+            style = {{fontSize: 12}}
           >
             Captain: { item.captain.name.toUpperCase() }
           </Typography>
           <Typography
-            style = {{fontSize: 16}}
+            style = {{fontSize: 12}}
           >
             No. of Players: { item.players.length }
           </Typography>
           <Typography
-            style = {{fontSize: 20}}
+            style = {{fontSize: 16}}
           >
             Wallet Balance: { item.balance }
           </Typography>
@@ -72,22 +74,22 @@ class ListViewHolder extends Component{
         const role = this.roleText(item.role, item.battingHand, item.bowlingHand);
         return <div>
           <Typography
-            style = {{fontSize: 18}}
+            style = {{fontSize: 14}}
           >
             Role: { role  }
           </Typography>
           <Typography
-            style = {{fontSize: 16}}
+            style = {{fontSize: 12}}
           >
             Department: { item.dept }
           </Typography>
           <Typography
-            style = {{fontSize: 16}}
+            style = {{fontSize: 12}}
           >
             Resident of { item.hostel }
           </Typography>
           <Typography
-            style = {{fontSize: 18}}
+            style = {{fontSize: 12}}
           >
             Price: { item.price }
           </Typography>
@@ -96,17 +98,17 @@ class ListViewHolder extends Component{
       case 'users' :
         return <div>
           <Typography
-            style = {{fontSize: 20}}
+            style = {{fontSize: 12}}
           >
             Phone: { item.phone }
           </Typography>
           <Typography
-            style = {{fontSize: 20}}
+            style = {{fontSize: 12}}
           >
             Email: { item.email }
           </Typography>
           <Typography
-            style = {{fontSize: 20}}
+            style = {{fontSize: 12}}
           >
             Role: { item.role.toUpperCase() }
           </Typography>
@@ -118,119 +120,118 @@ class ListViewHolder extends Component{
   }
 
   renderList = (item, viewType) => {
+    var imgSrc = '';
+    switch(viewType){
+      case 'players' :
+        imgSrc = item.picUrl;
+        break;
+
+      case 'teams' :
+        imgSrc = item.logoUrl;
+        break;
+
+      default :
+       imgSrc = '';
+    }
     return (
-      <Grid
-        item lg = {12}
-        key = { item.id }
+      <ListItem
+        key = {item.id}
+        align = 'start'
+        style = {{zIndex: 3, borderRadius: 2, backgroundColor: Colors.BACKGROUND, margin: 5,}}
       >
-      <Card align = 'start' style = {{ backgroundColor: Colors.BACKGROUND, margin: 5,}}>
-          <div
-            style = {styles.caption}
-          >
-            <Grid
-              container
-              spacing = {8}
-              justify = 'space-evenly'
+        <Grid
+          container
+          spacing = {8}
+          justify = 'space-evenly'
+        >
+          <Grid item xs = {4}>
+            <CardMedia
+              component = "img"
+              alt = "Logo"
+              style = {{height: '15vh'}}
+              image = {imgSrc}
+            />
+          </Grid>
+          <Grid item xs = {8}>
+            <Typography
+              style = {{textDecoration: 'underline', fontSize: 20}}
             >
-              <Grid item xs = {4}>
-                <CardMedia
-                  component = "img"
-                  alt = "Logo"
-                  style = {{ height: '100%'}}
-                  image = "https://images.pexels.com/photos/990824/pexels-photo-990824.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260"
-                />
-              </Grid>
-              <Grid item xs = {8}>
-                <Typography
-                  style = {{textDecoration: 'underline', fontSize: 30}}
-                >
-                  { item.name.toUpperCase() }
-                </Typography>
-                <Typography
-                  style = {{fontSize: 14}}
-                >
-                  Id: { item.id }
-                </Typography>
-                <br/>
-                {this.renderDetails(item, viewType)}
-                <div align = 'end'>
-                  <Button
-                    size = 'small'
-                    style = {styles.button}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    size = 'small'
-                    style = {styles.button}
-                  >
-                    Edit
-                  </Button>
-                </div>
-              </Grid>
-            </Grid>
-          </div>
-      </Card>
-    </Grid>
+              { item.name.toUpperCase() }
+            </Typography>
+            <Typography
+              style = {{fontSize: 14}}
+            >
+              Id: { item.id }
+            </Typography>
+            {this.renderDetails(item, viewType)}
+            <div align = 'end'>
+              <Button
+                size = 'small'
+                style = {styles.button}
+              >
+                Delete
+              </Button>
+              <Button
+                size = 'small'
+                style = {styles.button}
+                onClick = {() => this.props.setModeData('edit', item.id)}
+              >
+                Edit
+              </Button>
+            </div>
+          </Grid>
+        </Grid>
+      </ListItem>
     )
   }
   render(){
     const viewType = this.props.control;
     return (
-      <div
-        style = {styles.container}
-      >
-        <Card style = {styles.photosCard}>
-            <CardContent
-              align = 'center'
-              style = {{backgroundColor: Colors.FOREGROUND_2,}}
-            >
-              <Typography
-                style = {{fontSize: 20}}
-              >
-                List Items:
-              </Typography>
-            </CardContent>
-            <CardContent style = {{backgroundColor: Colors.WHITE}}>
-              <Grid
-                container
-                direction = 'row'
-                justify = 'space-evenly'
-                alignItems = 'center'
-              >
-                {
-                  viewType === 'users' && this.props.users.map(item =>
-                    this.renderList(item, this.props.control)
-                  )
-                }
-                {
-                  viewType === 'teams' && this.props.teams.map(item =>
-                    this.renderList(item, this.props.control)
-                  )
-                }
-                {
-                  viewType === 'players' && this.props.players.map(item =>
-                    this.renderList(item, this.props.control)
-                  )
-                }
-                </Grid>
-            </CardContent>
-        </Card>
-      </div>
+      <Card style = {styles.photosCard}>
+        <CardContent
+          style = {{display: 'flex', flexDirection: 'horizontal', zIndex: 2, padding: 2, backgroundColor: Colors.FOREGROUND_2,}}
+        >
+          <div
+            style = {{flex: 1, paddingTop:10, fontSize: 25}}
+          >
+            List Items:
+          </div>
+          <Pagination
+            totalRecords = {this.props.count}
+            onPageChanged = {(pageData) =>
+              this.props.handlePage(pageData.currentPage)
+            }
+          />
+        </CardContent>
+        <List style={{height: '80vh', overflow: 'scroll'}}>
+          {
+            viewType === 'users' && this.props.users.map(item =>
+              this.renderList(item, this.props.control)
+            )
+          }
+          {
+            viewType === 'teams' && this.props.teams.map(item =>
+              this.renderList(item, this.props.control)
+            )
+          }
+          {
+            viewType === 'players' && this.props.players.map(item =>
+              this.renderList(item, this.props.control)
+            )
+          }
+        </List>
+      </Card>
     );
   }
 }
 
 const styles = {
-  container: {
-    padding: 10,
-  },
   photosCard: {
-    marginTop: 10,
+    height: '100%',
     width: '100%'
   },
   button: {
-    margin: 5,
+    marginLeft: 5,
     color: 'white',
     background: Colors.PRIMARY,
   },

@@ -27,7 +27,8 @@ class PlayerForm extends Component {
   }
 
   verifyForm = () => {
-    const { name, phone, whatsApp, role, battingHand, bowlingHand, hostel, dept, price, availability} = this.state;
+    const mode = this.props.mode;
+    const {id, name, phone, whatsApp, role, battingHand, bowlingHand, hostel, dept, price, availability} = this.state;
     if(name===''){
       alert('Team Name is Required!');
       return;
@@ -57,19 +58,59 @@ class PlayerForm extends Component {
       return;
     }
     else{
-      this.props.handleAddPlayer({
-        name: name,
-        phone,
-        whatsApp,
-        role,
-        hostel,
-        dept,
-        battingHand,
-        bowlingHand,
-        availability,
-        price,
-      });
+      if(mode==='edit'){
+        if(id===''){
+          alert('Invalid Player Id!');
+          return;
+        }
+        else{
+          console.log('state of team', this.state);
+          this.props.handleEditRequest({
+            id: id,
+            name: name,
+            phone,
+            whatsApp,
+            role,
+            hostel,
+            dept,
+            battingHand,
+            bowlingHand,
+            availability,
+            price,
+          });
+        }
+      }
+      else{
+        this.props.handleAddPlayer({
+          name: name,
+          phone,
+          whatsApp,
+          role,
+          hostel,
+          dept,
+          battingHand,
+          bowlingHand,
+          availability,
+          price,
+        });
+      }
     }
+  }
+
+  setDetails = (data) => {
+    this.setState({
+      id: data.id,
+      name: data.name,
+      phone: data.phone,
+      whatsApp: data.whatsApp,
+      role: data.role,
+      hostel: data.hostel,
+      dept: data.dept,
+      battingHand: data.battingHand,
+      bowlingHand: data.bowlingHand,
+      availability: data.availability,
+      price: data.price,
+    })
   }
 
   clearFields = () => {
@@ -84,28 +125,37 @@ class PlayerForm extends Component {
       battingHand: '',
       bowlingHand: '',
       availability: '',
-      parice: '',
+      price: '',
     })
   }
 
   render() {
+    const mode = this.props.mode;
     return (
-      <div
-      >
-        <h1 align = "center"> Add New Player </h1>
         <div
           align = 'start'
           style = { styles.container }
         >
-          <TextField
-            required
-            variant = "outlined"
-            label = "Full Name:"
-            placeholder = "Abhishek Kumar"
-            style = { styles.textField }
-            value = {this.state.name}
-            onChange = {(event) => this.setState({name: event.target.value})}
-          />
+          <div style = {{ flexDirection: 'horizontal', display: 'flex',}}>
+            <TextField
+              required
+              variant = "outlined"
+              label = "Full Name:"
+              placeholder = "Abhishek Kumar"
+              style = {{ ...styles.textField, flex: 1 }}
+              value = {this.state.name}
+              onChange = {(event) => this.setState({name: event.target.value})}
+            />
+            <div style = {{flex: 1}}></div>
+            {
+              mode ==='edit' ?
+                <h3
+                  style = {styles.idText}>
+                  ID: {this.state.id}
+                </h3> :
+                <div style = {{flex: 1}}></div>
+            }
+          </div>
           <br/>
           <TextField
             required
@@ -158,13 +208,13 @@ class PlayerForm extends Component {
               value = {this.state.role}
               onChange= {(event) => this.setState({role: event.target.value})}
             >
-              <MenuItem value= 'batsman'>Batsman</MenuItem>
-              <MenuItem value= 'bowler'>Bowler</MenuItem>
-              <MenuItem value= 'all_rounder'>All-Rounder</MenuItem>
+              <MenuItem value= 'Batsman'>Batsman</MenuItem>
+              <MenuItem value= 'Bowler'>Bowler</MenuItem>
+              <MenuItem value= 'All-Rounder'>All-Rounder</MenuItem>
             </Select>
           </FormControl>
           {
-            (this.state.role === 'batsman' || this.state.role === 'all_rounder') &&
+            (this.state.role === 'Batsman' || this.state.role === 'All-Rounder') &&
               <FormControl
                 variant="outlined"
                 style = { styles.textField }
@@ -178,13 +228,13 @@ class PlayerForm extends Component {
                   value = {this.state.battingHand}
                   onChange= {(event) => this.setState({battingHand: event.target.value})}
                 >
-                  <MenuItem value= 'l'>Left</MenuItem>
-                  <MenuItem value= 'r'>Right</MenuItem>
+                  <MenuItem value= 'Left'>Left</MenuItem>
+                  <MenuItem value= 'Right'>Right</MenuItem>
                 </Select>
               </FormControl>
           }
           {
-            (this.state.role === 'bowler'|| this.state.role === 'all_rounder') &&
+            (this.state.role === 'Bowler'|| this.state.role === 'All-Rounder') &&
               <FormControl
                 variant="outlined"
                 style = { styles.textField }
@@ -198,8 +248,8 @@ class PlayerForm extends Component {
                   value = {this.state.bowlingHand}
                   onChange= {(event) => this.setState({bowlingHand: event.target.value})}
                 >
-                  <MenuItem value= 'l'>Left</MenuItem>
-                  <MenuItem value= 'r'>Right</MenuItem>
+                  <MenuItem value= 'Left'>Left</MenuItem>
+                  <MenuItem value= 'Right'>Right</MenuItem>
                 </Select>
               </FormControl>
           }
@@ -241,7 +291,6 @@ class PlayerForm extends Component {
             </Button>
           </div>
         </div>
-      </div>
     );
   }
 }
@@ -249,13 +298,19 @@ class PlayerForm extends Component {
 const styles = {
   container: {
     width: '100%',
-    border: '2px solid black' ,
-    borderRadius: 5,
   },
   textField: {
     marginLeft: 10,
     marginTop: 10,
     minWidth: '30%'
+  },
+  idText: {
+    textAlign: 'center',
+    padding: 5,
+    flex: 1,
+    color: Colors.PRIMARY_SPECIAL,
+    border: '3px solid red',
+    borderRadius: 5,
   },
   button: {
     margin: 10,

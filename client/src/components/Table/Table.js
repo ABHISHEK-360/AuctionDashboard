@@ -16,7 +16,7 @@ const CustomTableCell = withStyles(theme => ({
     color: theme.palette.common.white,
   },
   body: {
-    fontSize: 14,
+    fontSize: 12,
   },
 }))(TableCell);
 
@@ -46,7 +46,10 @@ function CustomizedTable(props) {
       <Table className={classes.table}>
         <TableHead>
           <TableRow>
+            <CustomTableCell>S/N</CustomTableCell>
+            <CustomTableCell>ID</CustomTableCell>
             <CustomTableCell>Player Name</CustomTableCell>
+            <CustomTableCell>WhatsApp</CustomTableCell>
             <CustomTableCell align="right">Department</CustomTableCell>
             <CustomTableCell align="right">Role</CustomTableCell>
             <CustomTableCell align="right">Hostel</CustomTableCell>
@@ -54,10 +57,19 @@ function CustomizedTable(props) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {players.map(row => (
+          {players.map((row, index) => (
             <TableRow className={classes.row} key={row.id}>
               <CustomTableCell component="th" scope="row">
+                {index+1}
+              </CustomTableCell>
+              <CustomTableCell component="th" scope="row">
+                {row.id}
+              </CustomTableCell>
+              <CustomTableCell component="th" scope="row">
                 {row.name}
+              </CustomTableCell>
+              <CustomTableCell component="th" scope="row">
+                {row.whatsApp}
               </CustomTableCell>
               <CustomTableCell align="right">{row.dept}</CustomTableCell>
               <CustomTableCell align="right">{row.role}</CustomTableCell>

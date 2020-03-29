@@ -44,7 +44,7 @@ export default class RequestService {
     if (token) {
       axios.defaults.headers['xyz-access-token'] = token;
       try {
-        const res = await axios({ method: 'PUT',  url: `${this.url}${id}`, data, headers  });
+        const res = await axios({ method: 'PUT',  url: `${this.url}/${id}`, data, headers  });
         return res.data;
       } catch (error) {
         return error.response.data;
@@ -52,7 +52,7 @@ export default class RequestService {
     }
     else{
       try {
-        const res = await axios({ method: 'PUT',  url: `${this.url}${id}`, data, headers });
+        const res = await axios({ method: 'PUT',  url: `${this.url}/${id}`, data, headers });
         return res.data;
       } catch (error) {
         return error.response.data;
@@ -64,7 +64,7 @@ export default class RequestService {
     if (token) {
       axios.defaults.headers['xyz-access-token'] = token;
       try {
-        const res = await axios({ methods: 'GET', url: `${this.url}${id}` });
+        const res = await axios({ methods: 'GET', url: `${this.url}/${id}` });
         return res.data;
       } catch (error) {
         return error.response.data;
@@ -72,7 +72,7 @@ export default class RequestService {
     }
     else{
       try {
-        const res = await axios({ methods: 'GET', url: `${this.url}${id}` });
+        const res = await axios({ methods: 'GET', url: `${this.url}/${id}` });
         return res.data;
       } catch (error) {
         return error.response.data;

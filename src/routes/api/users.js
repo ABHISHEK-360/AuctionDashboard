@@ -36,7 +36,7 @@ router.post('/signup', async(req, res) => {
 });
 
 router.get('/', middleware.checkToken, (req,res) => {
-  Users.findAll({
+  Users.findAndCountAll({
     attributes: ['id','name', 'email', 'phone', 'role'],
     include: [{
       attributes: ['name', 'id'],
@@ -46,14 +46,64 @@ router.get('/', middleware.checkToken, (req,res) => {
   .then(users => {
     return res.json({
       success: true,
-      count: users.length,
-      users,
+      count: users.count,
+      users: users.rows,
     })
   })
   .catch(e => {
     console.log('get players list err--------', e);
     return res.status(400).send('try again');
   })
+});
+
+router.put('/update', middleware.checkToken, async ( req, res ) => {
+  const { id, name, phone, email, role } = req.body;
+  var userDetails;
+
+  userDetails = await Users.findOne({
+    where: {
+      id: id
+    }
+  });
+
+  const updatedAt = new Date();
+  var data = {};
+
+  if(userDetails){
+    if(name){
+      data = {...data, name};
+    }
+    if(phone){
+      data = {...data, phone};
+    }
+    if(email){
+      data = {...data, email};
+    }
+    if(role){
+      data = {...data, role};
+    }
+
+    if(Object.keys(data).length >= 0){
+      console.log('data in update user', data);
+      await userDetails.update({updatedAt, ...data});
+      return res.json({
+        success: true,
+        message: 'User Details updated',
+      })
+    }
+    else {
+      return res.json({
+        success: false,
+        message: 'invalid params',
+      })
+    }
+  }
+  else{
+    return res.json({
+      success: false,
+      message: 'invalid params',
+    })
+  }
 });
 
 router.get('/:userId', middleware.checkToken, (req,res) => {
@@ -65,7 +115,7 @@ router.get('/:userId', middleware.checkToken, (req,res) => {
           model: Teams,
         }
       ],
-      where: {id: req.params.userId}
+      where: {id: req.params.userId},
     })
     .then(player => {
       return res.json({

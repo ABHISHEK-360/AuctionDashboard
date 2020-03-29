@@ -25,7 +25,7 @@ class UserForm extends Component {
   verifyForm = () => {
     const { name, phone, email, role, password, confPass } = this.state;
     if(name===''){
-      alert('Team Name is Required!');
+      alert('User Name is Required!');
       return;
     }
     else if(phone===''){
@@ -59,6 +59,45 @@ class UserForm extends Component {
     }
   }
 
+  verifyEdit = () => {
+    const { id, name, phone, email, role } = this.state;
+    if(name===''){
+      alert('User Name is Required!');
+      return;
+    }
+    else if(phone===''){
+      alert('Phone No is Required!');
+      return;
+    }
+    else if(email===''){
+      alert('Email is Required!');
+      return;
+    }
+    else if(role===''){
+      alert('Admin Role is Required!');
+      return;
+    }
+    else{
+      this.props.handleEditRequest({
+        id,
+        name,
+        phone,
+        email,
+        role,
+      });
+    }
+  }
+
+  setDetails = (data) => {
+    this.setState({
+      id: data.id,
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      role: data.role,
+    })
+  }
+
   clearFields = () => {
     this.setState({
       id: '',
@@ -72,23 +111,32 @@ class UserForm extends Component {
   }
 
   render() {
+    const mode = this.props.mode;
     return (
-      <div
-      >
-        <h1 align = "center"> Add New Admin/Captain </h1>
         <div
           align = 'start'
           style = { styles.container }
         >
-          <TextField
-            required
-            variant = "outlined"
-            label = "Full Name:"
-            placeholder = "Abhishek Kumar"
-            style = { styles.textField }
-            value = {this.state.name}
-            onChange = {(event) => this.setState({name: event.target.value})}
-          />
+          <div style = {{ flexDirection: 'horizontal', display: 'flex',}}>
+            <TextField
+              required
+              variant = "outlined"
+              label = "Full Name:"
+              placeholder = "Abhishek Kumar"
+              style = { styles.textField }
+              value = {this.state.name}
+              onChange = {(event) => this.setState({name: event.target.value})}
+            />
+            <div style = {{flex: 1}}></div>
+            {
+              mode ==='edit' ?
+                <h3
+                  style = {styles.idText}>
+                  ID: {this.state.id}
+                </h3> :
+                <div style = {{flex: 1}}></div>
+            }
+          </div>
           <br/>
           <FormControl
             variant="outlined"
@@ -149,10 +197,15 @@ class UserForm extends Component {
           >
             <Button
               color = 'default'
-              style={styles.button}
-              onClick={(event) => this.verifyForm()}
+              style = {styles.button}
+              onClick = {(event) => {
+                if(mode === 'edit')
+                  this.verifyEdit();
+                else
+                  this.verifyForm()
+              }}
             >
-              Save
+             {mode==='edit'? 'Update' : 'Save'}
             </Button>
             <Button
               color = 'default'
@@ -163,7 +216,6 @@ class UserForm extends Component {
             </Button>
           </div>
         </div>
-      </div>
     );
   }
 }
@@ -171,12 +223,18 @@ class UserForm extends Component {
 const styles = {
   container: {
     width: '100%',
-    border: '2px solid black' , borderRadius: 5,
   },
   textField: {
     marginLeft: 10,
     marginTop: 10,
     minWidth: '30%'
+  },
+  idText: {
+    textAlign: 'center',
+    flex: 1,
+    color: Colors.PRIMARY_SPECIAL,
+    border: '3px solid red',
+    borderRadius: 5,
   },
   button: {
     margin: 10,

@@ -16,7 +16,7 @@ class SimpleCard extends Component {
         <div>
           <Typography
             style = {styles.title}
-            variant="h5"
+            variant="h4"
             component="h3"
           >
             {name.toUpperCase()}
@@ -60,7 +60,7 @@ const styles = {
     padding: 5,
     textDecoration: 'underline',
     backgroundColor: Colors.PRIMARY,
-    color: Colors.WHITE,
+    color: 'black',
   },
   pos: {
     marginBottom: 12,
